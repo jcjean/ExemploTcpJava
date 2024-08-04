@@ -6,6 +6,7 @@ package br.ufs.dcomp.ExemploTcpJava;
 import java.net.*;
 import java.util.Scanner;
 import java.io.*;
+
 public class TCPServer{
     public static void main(String[] args){
         
@@ -21,27 +22,33 @@ public class TCPServer{
             
             InputStream is = sock.getInputStream(); //Canal de entrada de dados
             OutputStream os = sock.getOutputStream(); //Canal de saída de dados
-            byte[] buf = new byte[20]; // buffer de recepção
-            //String aux = "0";
-            int count=0;
+            byte[] buf = new byte[32]; // buffer de recepção
             
-            System.out.print("[ .............. ]");
-            do{
-                is.read(buf); // Operação bloqueante (aguardando chegada de dados)
+            int bytesRead;
             
-                String msg = new String(buf); // Mapeando vetor de bytes recebido para String
-                System.out.println("[OK] ]");
-                System.out.println("  Mensagem recebida: "+ msg);
+            System.out.println("[ Aguardando mensagens... ]");
+            while(true){
+                bytesRead = is.read(buf); // Operação bloqueante (aguardando chegada de dados)
+                if(bytesRead==-1) break; //Verifica se o cliente encerrou a conversa
+            
+                String msg = new String(buf, 0, bytesRead); // Mapeando vetor de bytes recebido para String. (byte[], inicio, tamanho)
                 
-                if(msg.equals("sair")){
-                    System.out.println("  Conversa encerrada>> "+ msg);
-                    count++;
+                if(msg.equalsIgnoreCase("sair")){
+                    System.out.println("[  Conversa encerrada  ]");
+                    break;
                 }else{
+                    System.out.println("  Mensagem recebida: "+ msg);
+                    
                     String ack = scan.nextLine();
                     byte[] buf2 = ack.getBytes();
                     os.write(buf2);
+                    os.flush();
+                    System.out.println("[ Mensagem Enviada! ]");
                 }
-            }while(count==0);
+            }
+            
+            ss.close();
+            scan.close();
         }catch(Exception e){System.out.println(e);}    
         System.out.println("[ FIM ]");
     }

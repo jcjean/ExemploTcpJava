@@ -21,23 +21,27 @@ public class TCPClient{
             do{
                 String msg = scan.nextLine();
                 
-                if(msg.trim().equals("sair")){
+                if(msg.trim().equalsIgnoreCase("sair")){
                     byte[] buf = msg.getBytes(); // Obtendo a respresntação em bytes da mensagem
                     os.write(buf);
-                    System.out.println("[OK]");
+                    os.flush();
+                    System.out.println("[ Encerrando conversa... ]");
                     count++;
                 }else{
                     byte[] buf = msg.getBytes(); // Obtendo a respresntação em bytes da mensagem
                     os.write(buf);
-                    System.out.println("[OK]");
+                    os.flush();
+                    System.out.println("[ Mensagem Enviada! ]");
                     
-                    byte[] buf2 = new byte[20];
-                    is.read(buf2);
-                    String resp = new String(buf2);
-                    System.out.println("  ACK>> "+ resp);
+                    byte[] buf2 = new byte[32];
+                    int bytesRead = is.read(buf2);
+                    String resp = new String(buf2, 0, bytesRead);
+                    System.out.println("  Mensagem recebida: "+ resp);
                 }
             }while(count==0);
             
+            sock.close();
+            scan.close();
         }catch(Exception e){System.out.println(e);}    
         System.out.println("[ FIM ]");
     }
